@@ -117,7 +117,7 @@ int main()
     double calories[] = {123, 154, 258, 354, 365, 150, 95, 195};
 
     vector<Food> foods;
-    buildMenu(names, values, calories, 8, &foods);
+    buildMenu(names, values, calories, sizeof(values) / sizeof(double), &foods);
 
     testGreedys(foods, 750);
     testGreedys(foods, 1000);
