@@ -110,6 +110,60 @@ void testGreedys(const vector<Food> &foods, double maxUnits)
     testGreedy(foods, maxUnits, sortByDensity);
 }
 
+double maxVal(const vector<Food> &toConsider, double avail, vector<Food> *toTake)
+{
+    double totalValue;
+
+    if (toConsider.empty() || avail == 0) {
+        totalValue = 0;
+        toTake->clear();
+    } else if (toConsider.at(0).getCost() > avail) {
+        // explore right branch only
+        vector<Food> nextToConsider(toConsider.begin() + 1, toConsider.end());
+        totalValue = maxVal(nextToConsider, avail, toTake);
+    } else {
+        Food nextItem = toConsider.at(0);
+        vector<Food> nextToConsider(toConsider.begin() + 1, toConsider.end());
+
+        // explore left branch
+        vector<Food> withToTake;
+        double withVal = maxVal(nextToConsider, avail - nextItem.getCost(), &withToTake);
+        withVal += nextItem.getValue();
+
+        // explore right branch
+        vector<Food> withoutToTake;
+        double withoutVal = maxVal(nextToConsider, avail - nextItem.getCost(), &withoutToTake);
+
+        if (withVal > withoutVal) {
+            totalValue = withVal;
+            copy(withToTake.begin(), withToTake.end(), back_inserter(*toTake));
+            toTake->push_back(nextItem);
+        } else {
+            totalValue = withoutVal;
+            copy(withoutToTake.begin(), withoutToTake.end(), back_inserter(*toTake));
+        }
+    }
+
+    return totalValue;
+}
+
+void testMaxVal(const vector<Food> &foods, double maxUnits, bool printItems = true)
+{
+    vector<Food> taken;
+    double val;
+
+    cout << "Use search tree to allocate " << maxUnits << " calories" << endl;
+
+    val = maxVal(foods, maxUnits, &taken);
+
+    cout << "Total value of items take = " << val << endl;
+    if (printItems) {
+        for(unsigned int i = 0; i < taken.size(); i++) {
+            cout << "    " << taken.at(i) << endl;
+        }
+    }
+}
+
 int main()
 {
     string names[] = {"wine", "beer", "pizza", "burger", "fries", "cola", "apple", "donut", "cake"};
@@ -121,5 +175,8 @@ int main()
 
     testGreedys(foods, 750);
     testGreedys(foods, 1000);
+    cout << endl;
+    testMaxVal(foods, 750);
+    cout << endl;
 }
 
