@@ -85,17 +85,17 @@ void testGreedy(const vector<Food> &items, double constraint, bool (*keyFunction
 
 bool sortByValue(const Food &f1, const Food &f2)
 {
-    return f1.getValue() < f2.getValue();
+    return f1.getValue() <= f2.getValue();
 }
 
 bool sortByCost(const Food &f1, const Food &f2)
 {
-    return 1 / f1.getCost() < 1 / f2.getCost();
+    return 1 / f1.getCost() <= 1 / f2.getCost();
 }
 
 bool sortByDensity(const Food &f1, const Food &f2)
 {
-    return f1.density() < f2.density();
+    return f1.density() <= f2.density();
 }
 
 void testGreedys(const vector<Food> &foods, double maxUnits)
