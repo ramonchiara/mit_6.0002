@@ -73,9 +73,7 @@ double greedy(const vector<Food> items, double maxCost, bool (*keyFunction)(cons
 void testGreedy(const vector<Food> &items, double constraint, bool (*keyFunction)(const Food &f1, const Food &f2))
 {
     vector<Food> taken;
-    double val;
-
-    val = greedy(items, constraint, keyFunction, &taken);
+    double val = greedy(items, constraint, keyFunction, &taken);
 
     cout << "Total value of items take = " << val << endl;
     for(unsigned int i = 0; i < taken.size(); i++) {
@@ -149,12 +147,10 @@ double maxVal(const vector<Food> &toConsider, double avail, vector<Food> *toTake
 
 void testMaxVal(const vector<Food> &foods, double maxUnits, bool printItems = true)
 {
-    vector<Food> taken;
-    double val;
-
     cout << "Use search tree to allocate " << maxUnits << " calories" << endl;
 
-    val = maxVal(foods, maxUnits, &taken);
+    vector<Food> taken;
+    double val = maxVal(foods, maxUnits, &taken);
 
     cout << "Total value of items take = " << val << endl;
     if (printItems) {
