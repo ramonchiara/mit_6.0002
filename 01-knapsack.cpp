@@ -11,11 +11,9 @@ class Food
     double calories;
 
 public:
-    Food(string name, double value, double calories)
+    Food(string name, double value, double calories):
+        name(name), value(value), calories(calories)
     {
-        this->name = name;
-        this->value = value;
-        this->calories =  calories;
     }
 
     double getValue() const
