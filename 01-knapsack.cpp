@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -160,8 +163,30 @@ void testMaxVal(const vector<Food> &foods, double maxUnits, bool printItems = tr
     }
 }
 
+// http://c-faq.com/lib/randrange.html
+int randint(int min, int max)
+{
+    return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+}
+
+// http://www.cplusplus.com/articles/D9j2Nwbp/
+string to_string(int n)
+{
+    stringstream out;
+    out << n;
+    return out.str();
+}
+
+void buildLargeMenu(int numItems, double maxVal, double maxCost, vector<Food> *items)
+{
+    for (int i = 1; i <= numItems; i++) {
+        items->push_back(Food(to_string(i), randint(1, maxVal), randint(1, maxCost)));
+    }
+}
+
 int main()
 {
+
     string names[] = {"wine", "beer", "pizza", "burger", "fries", "cola", "apple", "donut", "cake"};
     double values[] = {89, 90, 95, 100, 90, 79, 50, 10};
     double calories[] = {123, 154, 258, 354, 365, 150, 95, 195};
@@ -174,5 +199,11 @@ int main()
     cout << endl;
     testMaxVal(foods, 750);
     cout << endl;
-}
 
+    for (int numItems = 5; numItems <= 600; numItems += 5) {
+        vector<Food> items;
+        cout << "Try a menu with " << numItems << " items" << endl;
+        buildLargeMenu(numItems, 90, 250, &items);
+        testMaxVal(items, 750, true);
+    }
+}
