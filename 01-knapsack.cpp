@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -184,6 +185,90 @@ void buildLargeMenu(int numItems, double maxVal, double maxCost, vector<Food> *i
     }
 }
 
+struct Key {
+    const vector<Food> left;
+    double remainingCalories;
+};
+
+struct Result {
+    double totalValue;
+    vector<Food> taken;
+};
+
+bool operator<(const Key &k1, const Key &k2)
+{
+    return k1.remainingCalories < k2.remainingCalories;
+}
+
+double fastMaxVal(const vector<Food> &toConsider, double avail, vector<Food> *toTake, map<Key, Result> &memo)
+{
+    double totalValue;
+    Key k = {toConsider, avail};
+
+    if (toConsider.empty() || avail == 0) {
+        totalValue = 0;
+        toTake->clear();
+    } else {
+        try {
+            Result r = memo.at(k);
+            totalValue = r.totalValue;
+            *toTake = r.taken;
+        } catch(out_of_range) {
+            if (toConsider.at(0).getCost() > avail) {
+                // explore right branch only
+                vector<Food> nextToConsider(toConsider.begin() + 1, toConsider.end());
+                totalValue = fastMaxVal(nextToConsider, avail, toTake, memo);
+            } else {
+                Food nextItem = toConsider.at(0);
+                vector<Food> nextToConsider(toConsider.begin() + 1, toConsider.end());
+
+                // explore left branch
+                vector<Food> withToTake;
+                double withVal = fastMaxVal(nextToConsider, avail - nextItem.getCost(), &withToTake, memo);
+                withVal += nextItem.getValue();
+
+                // explore right branch
+                vector<Food> withoutToTake;
+                double withoutVal = fastMaxVal(nextToConsider, avail - nextItem.getCost(), &withoutToTake, memo);
+
+                if (withVal > withoutVal) {
+                    totalValue = withVal;
+                    copy(withToTake.begin(), withToTake.end(), back_inserter(*toTake));
+                    toTake->push_back(nextItem);
+                } else {
+                    totalValue = withoutVal;
+                    copy(withoutToTake.begin(), withoutToTake.end(), back_inserter(*toTake));
+                }
+            }
+        }
+    }
+
+    Result r = {totalValue, *toTake};
+    memo[k] = r;
+    return totalValue;
+}
+
+double fastMaxVal(const vector<Food> &toConsider, double avail, vector<Food> *toTake)
+{
+    map<Key, Result> memo;
+    return fastMaxVal(toConsider, avail, toTake, memo);
+}
+
+void testFastMaxVal(const vector<Food> &foods, double maxUnits, bool printItems = true)
+{
+    cout << "Use FAST search tree to allocate " << maxUnits << " calories" << endl;
+
+    vector<Food> taken;
+    double val = fastMaxVal(foods, maxUnits, &taken);
+
+    cout << "Total value of items take = " << val << endl;
+    if (printItems) {
+        for(unsigned int i = 0; i < taken.size(); i++) {
+            cout << "    " << taken.at(i) << endl;
+        }
+    }
+}
+
 int main()
 {
 
@@ -205,5 +290,7 @@ int main()
         cout << "Try a menu with " << numItems << " items" << endl;
         buildLargeMenu(numItems, 90, 250, &items);
         testMaxVal(items, 750, true);
+        testFastMaxVal(items, 750, true);
     }
 }
+
