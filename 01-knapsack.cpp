@@ -213,7 +213,7 @@ double fastMaxVal(const vector<Food> &toConsider, double avail, vector<Food> *to
             Result r = memo.at(k);
             totalValue = r.totalValue;
             *toTake = r.taken;
-        } catch(out_of_range) {
+        } catch(out_of_range&) {
             if (toConsider.at(0).getCost() > avail) {
                 // explore right branch only
                 vector<Food> nextToConsider(toConsider.begin() + 1, toConsider.end());
