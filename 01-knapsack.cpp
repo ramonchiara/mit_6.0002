@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <gmpxx.h>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -164,10 +165,15 @@ void testMaxVal(const vector<Food> &foods, double maxUnits, bool printItems = tr
     }
 }
 
-// http://c-faq.com/lib/randrange.html
+gmp_randclass rng(gmp_randinit_default);
 int randint(int min, int max)
 {
-    return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+    // http://c-faq.com/lib/randrange.html
+    // return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+
+    // rng.seed(time(NULL)); // called once, in main
+    mpz_class n = rng.get_z_range(mpz_class(max - min + 1)) + min;
+    return n.get_si();
 }
 
 // http://www.cplusplus.com/articles/D9j2Nwbp/
@@ -271,6 +277,7 @@ void testFastMaxVal(const vector<Food> &foods, double maxUnits, bool printItems 
 
 int main()
 {
+    rng.seed(0);
 
     string names[] = {"wine", "beer", "pizza", "burger", "fries", "cola", "apple", "donut", "cake"};
     double values[] = {89, 90, 95, 100, 90, 79, 50, 10};
@@ -289,8 +296,9 @@ int main()
         vector<Food> items;
         cout << "Try a menu with " << numItems << " items" << endl;
         buildLargeMenu(numItems, 90, 250, &items);
-        testMaxVal(items, 750, true);
+        // testMaxVal(items, 750, true);
         testFastMaxVal(items, 750, true);
     }
 }
+
 
