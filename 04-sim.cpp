@@ -11,9 +11,14 @@
 
 using namespace std;
 
-// http://c-faq.com/lib/randrange.html
+gmp_randclass rng(gmp_randinit_default);
 int randint(int min, int max) {
-    return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+    // http://c-faq.com/lib/randrange.html
+    // return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+
+    // rng.seed(time(NULL)); // called once, in main
+    mpz_class n = rng.get_z_range(mpz_class(max - min + 1)) + min;
+    return n.get_si();
 }
 
 // http://www.cplusplus.com/articles/D9j2Nwbp/
@@ -57,11 +62,47 @@ void runSim(string goal, int numTrials, string txt) {
     cout << "Estimated probability of " << txt << " = " << fixed << setprecision(8) << estProbability << endl;
 }
 
+vector<int> uniformPossibleDates() {
+    vector<int> possibleDates(365, 0);
+
+    for (unsigned int i = 0; i < possibleDates.size(); i++) {
+        possibleDates[i] = i;
+    }
+
+    return possibleDates;
+}
+
+vector<int> notUniformPossibleDates() {
+    vector<int> possibleDates;
+
+    for (int n = 1; n <= 4; n++)
+        for (int i = 0; i < 57 ; i++) {
+            possibleDates.push_back(i);
+        }
+
+    possibleDates.push_back(58);
+
+    for (int n = 1; n <= 4; n++)
+        for (int i = 59; i < 366 ; i++) {
+            possibleDates.push_back(i);
+        }
+
+    for (int n = 1; n <= 4; n++)
+        for (int i = 180; i < 270 ; i++) {
+            possibleDates.push_back(i);
+        }
+
+    return possibleDates;
+}
+
 bool sameDate(int numPeople, int numSame) {
+    vector<int> possibleDates = uniformPossibleDates();
+    // vector<int> possibleDates = notUniformPossibleDates();
     vector<int> birthdays(366, 0);
 
     for(int p = 1; p <= numPeople; p++) {
-        int birthDate = randint(1, 366);
+        int index = randint(0, possibleDates.size() - 1);
+        int birthDate = possibleDates[index];
         birthdays[birthDate]++;
     }
 
@@ -92,7 +133,9 @@ double factorial(int n) {
 
 int main() {
     // srand(time(NULL));
-    srand(0);
+    // srand(0);
+    // rng.seed(time(NULL));
+    rng.seed(0);
 
     // testRoll(5);
     // runSim("11111", 1000, "11111");
@@ -105,6 +148,7 @@ int main() {
         int numPeople = np[i];
 
         double estProb = birthdayProb(numPeople, 2, 10000);
+        // double estProb = birthdayProb(numPeople, 3, 10000);
 
         //double numerator = factorial(366);
         mpf_class numerator = mpz_class::factorial(366);
